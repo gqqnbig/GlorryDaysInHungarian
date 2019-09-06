@@ -42,6 +42,9 @@ namespace 匈牙利回归
 
 			var menuCommandID = new CommandID(CommandSet, CommandId);
 			var menuItem = new MenuCommand(this.Execute, menuCommandID);
+
+			//选中只是高亮图标而已，并不会显示一个多选框。
+			menuItem.Checked = GeneralSettings.Default.EnableHungarian;
 			commandService.AddCommand(menuItem);
 		}
 
@@ -89,17 +92,23 @@ namespace 匈牙利回归
 		private void Execute(object sender, EventArgs e)
 		{
 			ThreadHelper.ThrowIfNotOnUIThread();
-			string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-			string title = "EnableDisableCommand";
 
-			// Show a message box to prove we were here
-			VsShellUtilities.ShowMessageBox(
-				this.package,
-				message,
-				title,
-				OLEMSGICON.OLEMSGICON_INFO,
-				OLEMSGBUTTON.OLEMSGBUTTON_OK,
-				OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+			GeneralSettings.Default.EnableHungarian = !GeneralSettings.Default.EnableHungarian;
+			GeneralSettings.Default.Save();
+			var command = (MenuCommand) sender;
+			command.Checked = GeneralSettings.Default.EnableHungarian;
+
+			//string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
+			//string title = "EnableDisableCommand";
+
+			//// Show a message box to prove we were here
+			//VsShellUtilities.ShowMessageBox(
+			//	this.package,
+			//	message,
+			//	title,
+			//	OLEMSGICON.OLEMSGICON_INFO,
+			//	OLEMSGBUTTON.OLEMSGBUTTON_OK,
+			//	OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
 		}
 	}
 }

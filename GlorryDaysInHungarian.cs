@@ -39,7 +39,6 @@ namespace 匈牙利回归
 	[ProvideMenuResource("Menus.ctmenu", 1)]
 	[ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
 	[ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
-	[ProvideToolWindow(typeof(ToolWindow1))]
 	public sealed class GlorryDaysInHungarian : AsyncPackage
 	{
 		/// <summary>
@@ -73,7 +72,6 @@ namespace 匈牙利回归
 			// Do any initialization that requires the UI thread after switching to the UI thread.
 			await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 			await EnableDisableCommand.InitializeAsync(this);
-		    await ToolWindow1Command.InitializeAsync(this);
 		}
 
 		#endregion

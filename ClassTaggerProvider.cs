@@ -8,45 +8,32 @@ using Microsoft.VisualStudio.Text.Editor;
 
 namespace 匈牙利回归
 {
-
-	[Export(typeof(ITaggerProvider))]
-	[ContentType("CSharp")]
-	[TagType(typeof(ClassTag))]
-	internal sealed class ClassTaggerProvider: IViewTaggerProvider
+	[Export(typeof(IViewTaggerProvider))]
+	[ContentType("CSharp")] //修改ContentType后必须清理
+	[ContentType("projection")]
+	[TagType(typeof(ClassTag))] //修改TagType后必须清理
+	internal sealed class ClassTaggerProvider : IViewTaggerProvider //修改类名后必须清理
 	{
+#pragma warning disable 649 // "field never assigned to" -- field is set by MEF.
 		[Import]
-		internal ITextSearchService TextSearchService
-		{
-			get;
-			set;
-		}
-
-		[Import]
-		internal IBufferTagAggregatorFactoryService BufferTagAggregatorFactoryService
-		{
-			get;
-			set;
-		}
-
-		//public ITagger<T> CreateTagger<T>(ITextBuffer buffer) where T : ITag
-		//{
-		//	if ((int)buffer == 0)
-		//	{
-		//		throw new ArgumentNullException("buffer");
-		//	}
-		//	return buffer.get_Properties().GetOrCreateSingletonProperty<VarTagger>((Func<VarTagger>)(() => new VarTagger(buffer, this.TextSearchService))) as ITagger;
-		//}
+		internal IBufferTagAggregatorFactoryService BufferTagAggregatorFactoryService;
+#pragma warning restore 649
 
 		public ITagger<T> CreateTagger<T>(ITextView textView, ITextBuffer buffer) where T : ITag
 		{
-			// Only provide highlighting on the top-level buffer
+			if (textView == null)
+				throw new ArgumentNullException("textView");
+
+			if (buffer == null)
+				throw new ArgumentNullException("buffer");
+
 			if (textView.TextBuffer != buffer)
 			{
 				throw  new Exception("Not top level buffer");
 				return null;
 			}
 
-			return buffer.Properties.GetOrCreateSingletonProperty(nameof(ClassTagger),()=>new ClassTagger()) as ITagger<T>;
+			return textView.Properties.GetOrCreateSingletonProperty(() => new ClassTagger() as ITagger<T>);
 		}
 	}
 }

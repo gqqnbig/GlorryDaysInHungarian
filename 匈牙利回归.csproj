@@ -433,4 +433,13 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <PropertyGroup>
+    <CleanDependsOn>
+      $(CleanDependsOn);
+      CleanExperimentalInstance;
+    </CleanDependsOn>
+  </PropertyGroup>
+  <Target Name="CleanExperimentalInstance">
+    <RemoveDir Directories="$(LOCALAPPDATA)\Microsoft\VisualStudio\15.0_5c91ae55Exp\Extensions" />
+  </Target>
 </Project>

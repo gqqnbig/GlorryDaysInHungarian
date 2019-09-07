@@ -98,6 +98,8 @@ namespace 匈牙利回归
 			var command = (MenuCommand) sender;
 			command.Checked = GeneralSettings.Default.EnableHungarian;
 
+			var settingsWindow = new SettingsWindow();
+			settingsWindow.ShowDialog();
 			//string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
 			//string title = "EnableDisableCommand";
 

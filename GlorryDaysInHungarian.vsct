@@ -15,18 +15,17 @@
         defining some of the constants that we will use inside the file. -->
 
   <!--This is the file that defines the IDs for all the commands exposed by VisualStudio. -->
-  <Extern href="stdidcmd.h"/>
+  <Extern href="stdidcmd.h" />
 
   <!--This header contains the command ids for the menus provided by the shell. -->
-  <Extern href="vsshlids.h"/>
+  <Extern href="vsshlids.h" />
 
   <!--The Commands section is where commands, menus, and menu groups are defined.
       This section uses a Guid to identify the package that provides the command defined inside it. -->
   <Commands package="guidGlorryDaysInHungarian">
     <Menus>
       <Menu guid="guidGlorryDaysInHungarianCmdSet" id="TopLevelMenu" priority="0x700" type="Menu">
-        <Parent guid="guidSHLMainMenu"
-                id="IDG_VS_MM_TOOLSADDINS" />
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLSADDINS" />
         <Strings>
           <ButtonText>TestMenu</ButtonText>
           <CommandName>Glorry Days In Hungarian</CommandName>
@@ -48,7 +47,7 @@
          must be a menu. -->
     <Groups>
       <Group guid="guidGlorryDaysInHungarianCmdSet" id="MyMenuGroup" priority="0x0600">
-        <Parent guid="guidGlorryDaysInHungarianCmdSet" id="TopLevelMenu"/>
+        <Parent guid="guidGlorryDaysInHungarianCmdSet" id="TopLevelMenu" />
       </Group>
     </Groups>
 
@@ -71,6 +70,13 @@
           <ButtonText>Enable/Disable Glorry Days In Hungarian</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidGlorryDaysInHungarianCmdSet" id="cmdidToolWindow1Command" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_WNDO_OTRWNDWS1" />
+        <Icon guid="guidImages1" id="bmpPic1" />
+        <Strings>
+          <ButtonText>ToolWindow1</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
 
     <!--The bitmaps section is used to define the bitmaps that are used for the commands.-->
@@ -80,7 +86,7 @@
             bitmap strip containing the bitmaps and then there are the numeric ids of the elements used
             inside a button definition. An important aspect of this declaration is that the element id
             must be the actual index (1-based) of the bitmap inside the bitmap strip. -->
-      <Bitmap guid="guidImages" href="Resources\EnableDisableCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough"/>
+      <Bitmap guid="guidImages" href="Resources\EnableDisableCommand.png" usedList="bmpPic1, bmpPic2, bmpPicSearch, bmpPicX, bmpPicArrows, bmpPicStrikethrough" />
     </Bitmaps>
   </Commands>
 
@@ -93,9 +99,19 @@
       <IDSymbol name="MyMenuGroup" value="0x1020" />
       <IDSymbol name="EnableDisableCommandId" value="0x0100" />
       <IDSymbol name="TopLevelMenu" value="0x1021" />
+      <IDSymbol value="4130" name="cmdidToolWindow1Command" />
     </GuidSymbol>
 
-    <GuidSymbol name="guidImages" value="{29ffaf88-de7b-45cd-bb10-7d2f4043f6ce}" >
+    <GuidSymbol name="guidImages" value="{29ffaf88-de7b-45cd-bb10-7d2f4043f6ce}">
+      <IDSymbol name="bmpPic1" value="1" />
+      <IDSymbol name="bmpPic2" value="2" />
+      <IDSymbol name="bmpPicSearch" value="3" />
+      <IDSymbol name="bmpPicX" value="4" />
+      <IDSymbol name="bmpPicArrows" value="5" />
+      <IDSymbol name="bmpPicStrikethrough" value="6" />
+    </GuidSymbol>
+  
+    <GuidSymbol value="{9f1e5977-2475-4152-9d4f-05ac86311fc4}" name="guidImages1">
       <IDSymbol name="bmpPic1" value="1" />
       <IDSymbol name="bmpPic2" value="2" />
       <IDSymbol name="bmpPicSearch" value="3" />

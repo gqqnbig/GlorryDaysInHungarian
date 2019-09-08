@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Controls;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace 匈牙利回归
@@ -13,38 +15,49 @@ namespace 匈牙利回归
 	/// </summary>
 	class ClassTagger : Microsoft.VisualStudio.Text.Tagging.ITagger<ClassTag>
 	{
-		private Document document;
 
 		public IEnumerable<ITagSpan<ClassTag>> GetTags(NormalizedSnapshotSpanCollection spans)
 		{
 			if (spans.Count == 0) //there is no content in the buffer
 				yield break;
 
-			GetIntersectingLines(spans).Count();
+			SyntaxNode syntaxRoot = null;
 			foreach (var span in spans)
 			{
-				SnapshotPoint snapshotPoint = new SnapshotPoint();
+				SnapshotPoint snapshotPoint = span.Start;
 
-				document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
-				var semanticModel = document.GetSemanticModelAsync().Result;
-
-				var syntaxRoot = document.GetSyntaxRootAsync().Result;
-
-				var token = syntaxRoot.FindToken(snapshotPoint);
-				var classDeclarationToken = token.Parent.AncestorsAndSelf().FirstOrDefault() as Microsoft.CodeAnalysis.CSharp.Syntax.ClassDeclarationSyntax;
-
-				if (classDeclarationToken != null)
+				if (syntaxRoot == null)
 				{
-					if (classDeclarationToken.Identifier.Text.StartsWith("C"))
-					{
+					var document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
+					var semanticModel = document.GetSemanticModelAsync().Result;
 
+					syntaxRoot = document.GetSyntaxRootAsync().Result;
+				}
+
+				Queue<SyntaxNode> queue = new Queue<SyntaxNode>();
+				queue.Enqueue(syntaxRoot);
+
+
+
+				while (queue.Count > 0)
+				{
+					var token = queue.Dequeue();
+
+					if (token is ClassDeclarationSyntax classDeclarationToken)
+					{
+						if (classDeclarationToken.Identifier.Text.StartsWith("C"))
+						{
+							var s = new SnapshotSpan(snapshotPoint + token.SpanStart, token.Span.Length);
+							yield return new TagSpan<ClassTag>(s, new ClassTag(new TextBlock() { Text = "C"},null));
+						}
+					}
+					else
+					{
+						foreach (var t in token.ChildNodes())
+							queue.Enqueue(t);
 					}
 				}
 			}
-
-
-
-			throw new NotImplementedException();
 		}
 
 		private static IEnumerable<ITextSnapshotLine> GetIntersectingLines(NormalizedSnapshotSpanCollection spans)
@@ -52,8 +65,7 @@ namespace 匈牙利回归
 			if (spans.Count != 0)
 			{
 				int val = -1;
-				SnapshotSpan val2 = spans[0];
-				ITextSnapshot snapshot = val2.Snapshot;
+				ITextSnapshot snapshot = spans[0].Snapshot;
 				foreach (SnapshotSpan span in spans)
 				{
 					SnapshotSpan current = span;

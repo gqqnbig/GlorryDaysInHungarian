@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.CodeAnalysis;
@@ -14,12 +16,15 @@ namespace 匈牙利回归
 	/// <summary>
 	/// 产生 <see cref="ClassTag"/>
 	/// </summary>
-	class ClassTagger : IntraTextAdornmentTagger<string,TextBlock>
-		//Microsoft.VisualStudio.Text.Tagging.ITagger<IntraTextAdornmentTag>
+	class ClassTagger : IntraTextAdornmentTagger<string, TextBlock>
+	//Microsoft.VisualStudio.Text.Tagging.ITagger<IntraTextAdornmentTag>
 	{
 		protected override TextBlock CreateAdornment(string data, SnapshotSpan span)
 		{
-			return new TextBlock(){Text = "C"};
+			var textBlock = new TextBlock() { Padding = new Thickness(0), FontFamily = new FontFamily("Consolas"), FontSize = 11, FontWeight = FontWeights.Regular };
+			textBlock.Inlines.Add("C");
+
+			return textBlock;
 		}
 
 		protected override bool UpdateAdornment(TextBlock adornment, string data)
@@ -29,18 +34,15 @@ namespace 匈牙利回归
 
 		protected override IEnumerable<Tuple<SnapshotSpan, PositionAffinity?, string>> GetAdornmentData(NormalizedSnapshotSpanCollection spans)
 		{
-			SyntaxNode syntaxRoot = null;
 			foreach (var span in spans)
 			{
+				SyntaxNode syntaxRoot = null;
 				SnapshotPoint snapshotPoint = span.Start;
 
-				if (syntaxRoot == null)
-				{
-					var document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
-					//var semanticModel = document.GetSemanticModelAsync().Result;
+				var document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
+				//var semanticModel = document.GetSemanticModelAsync().Result;
 
-					syntaxRoot = document.GetSyntaxRootAsync().Result;
-				}
+				syntaxRoot = document.GetSyntaxRootAsync().Result;
 
 				Queue<SyntaxNode> queue = new Queue<SyntaxNode>();
 				queue.Enqueue(syntaxRoot);
@@ -55,8 +57,8 @@ namespace 匈牙利回归
 					{
 						//if (classDeclarationToken.Identifier.Text.StartsWith("C"))
 						//{
-						var s = new SnapshotSpan(snapshotPoint.Snapshot, token.SpanStart, 0);
-						yield return Tuple.Create<SnapshotSpan, PositionAffinity?, string>(s, PositionAffinity.Predecessor, classDeclarationToken.Identifier.Text);
+						var s = new SnapshotSpan(snapshotPoint.Snapshot, classDeclarationToken.Identifier.SpanStart + 1, 0);
+						yield return Tuple.Create<SnapshotSpan, PositionAffinity?, string>(s, PositionAffinity.Successor, classDeclarationToken.Identifier.Text);
 						//}
 					}
 					else

@@ -7,20 +7,28 @@ using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.VisualStudio.Text.Editor;
 
 namespace 匈牙利回归
 {
 	/// <summary>
 	/// 产生 <see cref="ClassTag"/>
 	/// </summary>
-	class ClassTagger : Microsoft.VisualStudio.Text.Tagging.ITagger<ClassTag>
+	class ClassTagger : IntraTextAdornmentTagger<string,TextBlock>
+		//Microsoft.VisualStudio.Text.Tagging.ITagger<IntraTextAdornmentTag>
 	{
-
-		public IEnumerable<ITagSpan<ClassTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+		protected override TextBlock CreateAdornment(string data, SnapshotSpan span)
 		{
-			if (spans.Count == 0) //there is no content in the buffer
-				yield break;
+			return new TextBlock(){Text = "C"};
+		}
 
+		protected override bool UpdateAdornment(TextBlock adornment, string data)
+		{
+			return true;
+		}
+
+		protected override IEnumerable<Tuple<SnapshotSpan, PositionAffinity?, string>> GetAdornmentData(NormalizedSnapshotSpanCollection spans)
+		{
 			SyntaxNode syntaxRoot = null;
 			foreach (var span in spans)
 			{
@@ -29,7 +37,7 @@ namespace 匈牙利回归
 				if (syntaxRoot == null)
 				{
 					var document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
-					var semanticModel = document.GetSemanticModelAsync().Result;
+					//var semanticModel = document.GetSemanticModelAsync().Result;
 
 					syntaxRoot = document.GetSyntaxRootAsync().Result;
 				}
@@ -45,11 +53,11 @@ namespace 匈牙利回归
 
 					if (token is ClassDeclarationSyntax classDeclarationToken)
 					{
-						if (classDeclarationToken.Identifier.Text.StartsWith("C"))
-						{
-							var s = new SnapshotSpan(snapshotPoint + token.SpanStart, token.Span.Length);
-							yield return new TagSpan<ClassTag>(s, new ClassTag(new TextBlock() { Text = "C"},null));
-						}
+						//if (classDeclarationToken.Identifier.Text.StartsWith("C"))
+						//{
+						var s = new SnapshotSpan(snapshotPoint.Snapshot, token.SpanStart, 0);
+						yield return Tuple.Create<SnapshotSpan, PositionAffinity?, string>(s, PositionAffinity.Predecessor, classDeclarationToken.Identifier.Text);
+						//}
 					}
 					else
 					{
@@ -60,26 +68,73 @@ namespace 匈牙利回归
 			}
 		}
 
-		private static IEnumerable<ITextSnapshotLine> GetIntersectingLines(NormalizedSnapshotSpanCollection spans)
-		{
-			if (spans.Count != 0)
-			{
-				int val = -1;
-				ITextSnapshot snapshot = spans[0].Snapshot;
-				foreach (SnapshotSpan span in spans)
-				{
-					SnapshotSpan current = span;
-					int lineNumberFromPosition = snapshot.GetLineNumberFromPosition(current.Start);
-					int lastLine = snapshot.GetLineNumberFromPosition(current.End);
-					for (int i = Math.Max(val, lineNumberFromPosition); i <= lastLine; i++)
-					{
-						yield return snapshot.GetLineFromLineNumber(i);
-					}
-					val = lastLine;
-				}
-			}
-		}
+		//public IEnumerable<ITagSpan<IntraTextAdornmentTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+		//{
+		//	if (spans.Count == 0) //there is no content in the buffer
+		//		yield break;
 
-		public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+		//	SyntaxNode syntaxRoot = null;
+		//	foreach (var span in spans)
+		//	{
+		//		SnapshotPoint snapshotPoint = span.Start;
+
+		//		if (syntaxRoot == null)
+		//		{
+		//			var document = snapshotPoint.Snapshot.GetOpenDocumentInCurrentContextWithChanges();
+		//			//var semanticModel = document.GetSemanticModelAsync().Result;
+
+		//			syntaxRoot = document.GetSyntaxRootAsync().Result;
+		//		}
+
+		//		Queue<SyntaxNode> queue = new Queue<SyntaxNode>();
+		//		queue.Enqueue(syntaxRoot);
+
+
+
+		//		while (queue.Count > 0)
+		//		{
+		//			var token = queue.Dequeue();
+
+		//			if (token is ClassDeclarationSyntax classDeclarationToken)
+		//			{
+		//				//if (classDeclarationToken.Identifier.Text.StartsWith("C"))
+		//				//{
+		//					var s = new SnapshotSpan(snapshotPoint.Snapshot, token.SpanStart, 0);
+		//				yield return new TagSpan<IntraTextAdornmentTag>(s, new IntraTextAdornmentTag(new TextBlock() { Text = "C" }, null, PositionAffinity.Predecessor));
+		//				//}
+		//			}
+		//			else
+		//			{
+		//				foreach (var t in token.ChildNodes())
+		//					queue.Enqueue(t);
+		//			}
+		//		}
+		//	}
+		//}
+
+		//private static IEnumerable<ITextSnapshotLine> GetIntersectingLines(NormalizedSnapshotSpanCollection spans)
+		//{
+		//	if (spans.Count != 0)
+		//	{
+		//		int val = -1;
+		//		ITextSnapshot snapshot = spans[0].Snapshot;
+		//		foreach (SnapshotSpan span in spans)
+		//		{
+		//			SnapshotSpan current = span;
+		//			int lineNumberFromPosition = snapshot.GetLineNumberFromPosition(current.Start);
+		//			int lastLine = snapshot.GetLineNumberFromPosition(current.End);
+		//			for (int i = Math.Max(val, lineNumberFromPosition); i <= lastLine; i++)
+		//			{
+		//				yield return snapshot.GetLineFromLineNumber(i);
+		//			}
+		//			val = lastLine;
+		//		}
+		//	}
+		//}
+
+		public ClassTagger(IWpfTextView view) : base(view)
+		{
+
+		}
 	}
 }

@@ -11,7 +11,7 @@ namespace 匈牙利回归
 	[Export(typeof(IViewTaggerProvider))]
 	[ContentType("CSharp")] //修改ContentType后必须清理
 	[ContentType("projection")]
-	[TagType(typeof(ClassTag))] //修改TagType后必须清理
+	[TagType(typeof(IntraTextAdornmentTag))] //修改TagType后必须清理
 	internal sealed class ClassTaggerProvider : IViewTaggerProvider //修改类名后必须清理
 	{
 #pragma warning disable 649 // "field never assigned to" -- field is set by MEF.
@@ -29,11 +29,11 @@ namespace 匈牙利回归
 
 			if (textView.TextBuffer != buffer)
 			{
-				throw  new Exception("Not top level buffer");
+				//throw  new Exception("Not top level buffer");
 				return null;
 			}
 
-			return textView.Properties.GetOrCreateSingletonProperty(() => new ClassTagger() as ITagger<T>);
+			return textView.Properties.GetOrCreateSingletonProperty(() => new ClassTagger((IWpfTextView)textView) as ITagger<T>);
 		}
 	}
 }
